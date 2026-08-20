@@ -411,8 +411,8 @@
         toSelect.add(opt2);
       }
 
-      fromSelect.value=localStorage.getItem("fromCurrency")||"GBP";
-      toSelect.value=localStorage.getItem("toCurrency")||"USD";
+      fromSelect.value=localStorage.getItem("fromCurrency")||"USD";
+      toSelect.value=localStorage.getItem("toCurrency")||"GBP";
       updateRateLabels();
       loadSavedRate();
     }
