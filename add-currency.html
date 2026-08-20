@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Custom Currency Payment - Holiday Currency Converter</title>
+  <!-- PayPal SDK Script -->
+  <script src="https://www.paypal.com/sdk/js?client-id=BAAnxGDYXgVfDS0nYh2rP9juvOgmwaLOttol32QopYH4rnSFwZ6W5fa8i7Zg2M-qqx8wNTGX3lfm6DUYQE&currency=GBP"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fff;
+      padding: 25px 30px;
+      border-radius: 10px;
+      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+      width: 440px;
+      text-align: center;
+      overflow-y: auto;
+      max-height: 95vh;
+    }
+
+    /* Title dropdown menu */
+    .title-dropdown-container {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: -10px;
+      margin-bottom: 15px;
+    }
+
+    .title-dropdown-container select {
+      width: auto;
+      margin: 0;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .title-box {
+      background-color: #007bff;
+      color: #fff;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .price-tag {
+      background: #e8f4ff;
+      border: 1px solid #007bff;
+      color: #007bff;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .back-btn {
+      background-color: #6c757d;
+      margin-top: 8px;
+    }
+
+    .back-btn:hover {
+      background-color: #5a6268;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      text-align: left;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin-top: 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+      color: #555;
+    }
+
+    .paypal-direct-btn {
+      display: block;
+      background-color: #ffc439;
+      color: #111;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 12px;
+      border-radius: 5px;
+      margin-top: 10px;
+      border: 1px solid #e0ac2b;
+      transition: background-color 0.2s ease;
+    }
+
+    .paypal-direct-btn:hover {
+      background-color: #f2ba31;
+    }
+
+    #paypal-button-container {
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Matching title dropdown menu -->
+    <div class="title-dropdown-container">
+      <select id="titleDropdown" onchange="navigateToPage(this.value)">
+        <option value="index.html">Home</option>
+        <option value="https://www.xe.com/en-gb/currencyconverter/">Live currency exchange rates</option>
+        <option value="https://www.xe.com/en-gb/currencyconverter/">Live currency exchange rates</option>
+        <option value="contact.html">Contact us</option>
+      </select>
+    </div>
+
+    <div class="title-box">Add Custom Currency</div>
+    <div class="price-tag">One-Time Fee: £0.50</div>
+
+    <form id="paymentForm" onsubmit="event.preventDefault();">
+      <div class="section-title">1. Currency Details</div>
+      <label for="customCode">Currency Code (3 Letters)</label>
+      <input type="text" id="customCode" placeholder="e.g. INR" maxlength="3" required style="text-transform: uppercase;">
+
+      <label for="customName">Currency Name</label>
+      <input type="text" id="customName" placeholder="e.g. Indian Rupee" required>
+
+      <div class="section-title">2. Payment via PayPal</div>
+      
+      <!-- Option A: Rendered PayPal SDK Buttons -->
+      <div id="paypal-button-container"></div>
+
+      <!-- Option B: Direct Hosted PayPal Payment Link -->
+      <a href="https://www.paypal.com/ncp/payment/YOUR_PAYPAL_BUTTON_ID" id="paypalLink" class="paypal-direct-btn" target="_blank">
+        💳 Pay £0.50 via PayPal Link
+      </a>
+
+      <button type="button" class="back-btn" onclick="window.location.href='index.html'">Cancel & Return</button>
+    </form>
+
+    <footer class="gallery-footer">
+      <div class="copyright">
+        <p></p>
+        &copy; 2026 S Allan. All rights reserved.
+      </div>
+    </footer>    
+  </div>
+
+  <script>
+    // Navigation handler for dropdown menu
+    function navigateToPage(url) {
+      if (url) {
+        window.location.href = url;
+      }
+    }
+
+    // Initialize PayPal Smart Buttons
+    if (window.paypal) {
+      paypal.Buttons({
+        style: {
+          layout: 'vertical',
+          color:  'gold',
+          shape:  'rect',
+          label:  'paypal'
+        },
+        createOrder: function(data, actions) {
+          const code = document.getElementById("customCode").value.trim().toUpperCase();
+          const name = document.getElementById("customName").value.trim();
+
+          if (code.length !== 3) {
+            alert("Please enter a valid 3-letter currency code before paying.");
+            return Promise.reject(new Error("Invalid currency code"));
+          }
+          if (!name) {
+            alert("Please enter a currency name before paying.");
+            return Promise.reject(new Error("Missing currency name"));
+          }
+
+          return actions.order.create({
+            purchase_units: [{
+              amount: {
+                value: '0.50',
+                currency_code: 'GBP'
+              },
+              description: `Add Custom Currency: ${code} - ${name}`
+            }]
+          });
+        },
+        onApprove: function(data, actions) {
+          return actions.order.capture().then(function(details) {
+            const code = document.getElementById("customCode").value.trim().toUpperCase();
+            const name = document.getElementById("customName").value.trim();
+
+            // Save custom currency to LocalStorage upon successful payment
+            const savedCurrencies = JSON.parse(localStorage.getItem("customCurrencies")) || {};
+            savedCurrencies[code] = name;
+            localStorage.setItem("customCurrencies", JSON.stringify(savedCurrencies));
+
+            alert(`✅ Payment successful! Currency "${code} - ${name}" has been added.`);
+            window.location.href = "index.html";
+          });
+        },
+        onError: function(err) {
+          console.error("PayPal Error:", err);
+          alert("Payment processing error. Please try again.");
+        }
+      }).render('#paypal-button-container');
+    }
+  </script>
+</body>
+</html>
