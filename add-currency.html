@@ -126,14 +126,14 @@
   <div class="container">
     <div class="title-dropdown-container">
       <select id="titleDropdown" onchange="navigateToPage(this.value)">
-        <option value="add-currency.html">Add Currency (£0.50)</option>        
+        <option value="add-currency.html">Add Currency (£0.99)</option>        
         <option value="index.html">Home</option>
         <option value="contact.html">Contact us</option>
       </select>
     </div>
 
     <div class="title-box">Add Custom Currency</div>
-    <div class="price-tag">One-Time Fee: £0.50</div>
+    <div class="price-tag">One-Time Fee: £0.99</div>
 
     <form id="paymentForm" onsubmit="event.preventDefault();">
       <div class="section-title">1. Currency Details</div>
@@ -192,7 +192,7 @@
           return actions.order.create({
             purchase_units: [{
               amount: {
-                value: '0.50',
+                value: '0.99',
                 currency_code: 'GBP'
               },
               description: `Add Custom Currency: ${code} - ${name}`
