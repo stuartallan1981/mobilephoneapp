@@ -339,17 +339,17 @@
       }
     }
 
-    const fromSelect=document.getElementById("fromCurrency");
-    const toSelect=document.getElementById("toCurrency");
-    const outputBox=document.getElementById("outputBox");
-    const noteEl=document.getElementById("note");
-    const manualRateForward=document.getElementById("manualRateForward");
-    const manualRateInverse=document.getElementById("manualRateInverse");
-    const amountInput=document.getElementById("amount");
-    const forwardLabel=document.getElementById("forwardLabel");
-    const inverseLabel=document.getElementById("inverseLabel");
-    const authWarning=document.getElementById("authWarning");
-    const fetchRateBtn=document.getElementById("fetchRateBtn");
+    const fromSelect = document.getElementById("fromCurrency");
+    const toSelect = document.getElementById("toCurrency");
+    const outputBox = document.getElementById("outputBox");
+    const noteEl = document.getElementById("note");
+    const manualRateForward = document.getElementById("manualRateForward");
+    const manualRateInverse = document.getElementById("manualRateInverse");
+    const amountInput = document.getElementById("amount");
+    const forwardLabel = document.getElementById("forwardLabel");
+    const inverseLabel = document.getElementById("inverseLabel");
+    const authWarning = document.getElementById("authWarning");
+    const fetchRateBtn = document.getElementById("fetchRateBtn");
 
     function isCognitoSignedIn() {
       for (let i = 0; i < localStorage.length; i++) {
@@ -384,7 +384,7 @@
       }
     }
 
-    const currencies={
+    const currencies = {
       GBP: "British Pound",      
       EUR: "Euro",  
       USD: "US Dollar",
@@ -399,52 +399,52 @@
       ZAR: "South African Rand"
     };
 
-    function populateSelects(){
+    function populateSelects() {
       // Clear existing options to prevent duplicate entries
       fromSelect.innerHTML = "";
       toSelect.innerHTML = "";
 
-      const savedCurrencies=JSON.parse(localStorage.getItem("customCurrencies"))||{};
-      const allCurrencies={...currencies,...savedCurrencies};
+      const savedCurrencies = JSON.parse(localStorage.getItem("customCurrencies")) || {};
+      const allCurrencies = { ...currencies, ...savedCurrencies };
 
-      for(const [code,name] of Object.entries(allCurrencies)){
-        const opt1=new Option(`${code} - ${name}`,code);
-        const opt2=new Option(`${code} - ${name}`,code);
+      for (const [code, name] of Object.entries(allCurrencies)) {
+        const opt1 = new Option(`${code} - ${name}`, code);
+        const opt2 = new Option(`${code} - ${name}`, code);
         fromSelect.add(opt1);
         toSelect.add(opt2);
       }
 
-      fromSelect.value=localStorage.getItem("fromCurrency")||"USD";
-      toSelect.value=localStorage.getItem("toCurrency")||"GBP";
+      fromSelect.value = localStorage.getItem("fromCurrency") || "USD";
+      toSelect.value = localStorage.getItem("toCurrency") || "GBP";
       updateRateLabels();
       loadSavedRate();
     }
 
-    function currencyKey(){
+    function currencyKey() {
       return `${fromSelect.value}_${toSelect.value}`;
     }
 
-    function loadSavedRate(){
-      const savedRates=JSON.parse(localStorage.getItem("savedRates"))||{};
-      const key=currencyKey();
-      if(savedRates[key]){
-        const rate=savedRates[key];
-        manualRateForward.value=parseFloat(rate).toFixed(4);
-        manualRateInverse.value=(1/rate).toFixed(4);
-      }else{
-        manualRateForward.value="";
-        manualRateInverse.value="";
+    function loadSavedRate() {
+      const savedRates = JSON.parse(localStorage.getItem("savedRates")) || {};
+      const key = currencyKey();
+      if (savedRates[key]) {
+        const rate = savedRates[key];
+        manualRateForward.value = parseFloat(rate).toFixed(4);
+        manualRateInverse.value = (1 / rate).toFixed(4);
+      } else {
+        manualRateForward.value = "";
+        manualRateInverse.value = "";
       }
     }
 
-    function updateRateLabels(){
-      forwardLabel.textContent=`From (${fromSelect.value}) → To (${toSelect.value}):`;
-      inverseLabel.textContent=`To (${toSelect.value}) → From (${fromSelect.value}):`;
+    function updateRateLabels() {
+      forwardLabel.textContent = `From (${fromSelect.value}) → To (${toSelect.value}):`;
+      inverseLabel.textContent = `To (${toSelect.value}) → From (${fromSelect.value}):`;
       loadSavedRate();
     }
 
     async function fetchLiveExchangeRate() {
-      if(!isCognitoSignedIn()) return;
+      if (!isCognitoSignedIn()) return;
 
       const from = fromSelect.value;
       const to = toSelect.value;
@@ -452,6 +452,17 @@
       if (from === to) {
         outputBox.textContent = "Please select two different currencies.";
         noteEl.textContent = "";
+        return;
+      }
+
+      // Check if either currency is a custom code not supported by the external live rate API
+      const isFromCustom = !(from in currencies);
+      const isToCustom = !(to in currencies);
+
+      if (isFromCustom || isToCustom) {
+        const customCode = isFromCustom ? from : to;
+        outputBox.textContent = "—";
+        noteEl.textContent = `⚠️ Live rates are unavailable for custom currency (${customCode}). Please set the rate manually below.`;
         return;
       }
 
@@ -476,95 +487,99 @@
 
           convertCurrency();
         } else {
-          alert(`Unable to fetch exchange rate for ${from} to ${to}.`);
+          outputBox.textContent = "—";
+          noteEl.textContent = `Unable to fetch live rates for ${from} to ${to}. Please enter rate manually.`;
         }
       } catch (error) {
         console.error("Exchange rate error:", error);
-        alert("Failed to fetch live exchange rate. Please try again later.");
+        outputBox.textContent = "—";
+        noteEl.textContent = "Failed to fetch live rate. Please enter the rate manually.";
       } finally {
         fetchRateBtn.disabled = false;
         fetchRateBtn.textContent = "⚡ Fetch Live Exchange Rate";
       }
     }
 
-    function convertCurrency(){
-      if(!isCognitoSignedIn()) return;
+    function convertCurrency() {
+      if (!isCognitoSignedIn()) return;
 
-      const from=fromSelect.value,to=toSelect.value,
-            amount=parseFloat(amountInput.value),
-            rateForward=parseFloat(manualRateForward.value);
+      const from = fromSelect.value, to = toSelect.value,
+            amount = parseFloat(amountInput.value),
+            rateForward = parseFloat(manualRateForward.value);
 
-      if(isNaN(amount)||amount<=0){
-        outputBox.textContent="—";noteEl.textContent="";return;
+      if (isNaN(amount) || amount <= 0) {
+        outputBox.textContent = "—"; noteEl.textContent = ""; return;
       }
-      if(from===to){
-        outputBox.textContent="Please select two different currencies.";noteEl.textContent="";return;
+      if (from === to) {
+        outputBox.textContent = "Please select two different currencies."; noteEl.textContent = ""; return;
       }
-      if(isNaN(rateForward)||rateForward<=0){
-        outputBox.textContent="Enter a valid exchange rate.";noteEl.textContent="";return;
+      if (isNaN(rateForward) || rateForward <= 0) {
+        outputBox.textContent = "Enter a valid exchange rate."; noteEl.textContent = ""; return;
       }
-      const result=amount*rateForward;
-      outputBox.textContent=`${result.toFixed(2)} ${to}`;
-      noteEl.textContent=`Using rate saved for ${from} → ${to}: 1 ${from} = ${rateForward.toFixed(4)} ${to}`;
+      const result = amount * rateForward;
+      outputBox.textContent = `${result.toFixed(2)} ${to}`;
+      noteEl.textContent = `Using rate saved for ${from} → ${to}: 1 ${from} = ${rateForward.toFixed(4)} ${to}`;
     }
 
-    function saveSettings(rate){
-      localStorage.setItem("fromCurrency",fromSelect.value);
-      localStorage.setItem("toCurrency",toSelect.value);
+    function saveSettings(rate) {
+      localStorage.setItem("fromCurrency", fromSelect.value);
+      localStorage.setItem("toCurrency", toSelect.value);
 
-      if(!isCognitoSignedIn()){
+      if (!isCognitoSignedIn()) {
         return;
       }
 
-      const rateForward=rate?rate:parseFloat(manualRateForward.value);
-      if(isNaN(rateForward)||rateForward<=0){
+      const rateForward = rate ? rate : parseFloat(manualRateForward.value);
+      if (isNaN(rateForward) || rateForward <= 0) {
         return;
       }
-      const savedRates=JSON.parse(localStorage.getItem("savedRates"))||{};
-      savedRates[currencyKey()]=rateForward;
-      localStorage.setItem("savedRates",JSON.stringify(savedRates));
+      const savedRates = JSON.parse(localStorage.getItem("savedRates")) || {};
+      savedRates[currencyKey()] = rateForward;
+      localStorage.setItem("savedRates", JSON.stringify(savedRates));
     }
 
-    manualRateForward.addEventListener("input",()=>{
-      const val=parseFloat(manualRateForward.value);
-      manualRateInverse.value=!isNaN(val)&&val>0?(1/val).toFixed(4):"";
+    manualRateForward.addEventListener("input", () => {
+      const val = parseFloat(manualRateForward.value);
+      manualRateInverse.value = !isNaN(val) && val > 0 ? (1 / val).toFixed(4) : "";
       convertCurrency();
     });
 
-    amountInput.addEventListener("input",convertCurrency);
-    fromSelect.addEventListener("change",()=>{
-      localStorage.setItem("fromCurrency",fromSelect.value);
-      updateRateLabels();convertCurrency();
+    amountInput.addEventListener("input", convertCurrency);
+    fromSelect.addEventListener("change", () => {
+      localStorage.setItem("fromCurrency", fromSelect.value);
+      updateRateLabels();
+      convertCurrency();
     });
-    toSelect.addEventListener("change",()=>{
-      localStorage.setItem("toCurrency",toSelect.value);
-      updateRateLabels();convertCurrency();
+    toSelect.addEventListener("change", () => {
+      localStorage.setItem("toCurrency", toSelect.value);
+      updateRateLabels();
+      convertCurrency();
     });
 
-    function swapCurrencies(){
-      const tempFrom=fromSelect.value;
-      fromSelect.value=toSelect.value;
-      toSelect.value=tempFrom;
+    function swapCurrencies() {
+      const tempFrom = fromSelect.value;
+      fromSelect.value = toSelect.value;
+      toSelect.value = tempFrom;
 
-      localStorage.setItem("fromCurrency",fromSelect.value);
-      localStorage.setItem("toCurrency",toSelect.value);
+      localStorage.setItem("fromCurrency", fromSelect.value);
+      localStorage.setItem("toCurrency", toSelect.value);
 
-      const currentRate=parseFloat(manualRateForward.value);
-      let invertedRate=null;
+      const currentRate = parseFloat(manualRateForward.value);
+      let invertedRate = null;
 
-      if(!isNaN(currentRate)&&currentRate>0){
-        invertedRate=1/currentRate;
-        manualRateForward.value=invertedRate.toFixed(4);
-        manualRateInverse.value=(1/invertedRate).toFixed(4);
-        const savedRates=JSON.parse(localStorage.getItem("savedRates"))||{};
-        savedRates[currencyKey()]=invertedRate;
-        localStorage.setItem("savedRates",JSON.stringify(savedRates));
+      if (!isNaN(currentRate) && currentRate > 0) {
+        invertedRate = 1 / currentRate;
+        manualRateForward.value = invertedRate.toFixed(4);
+        manualRateInverse.value = (1 / invertedRate).toFixed(4);
+        const savedRates = JSON.parse(localStorage.getItem("savedRates")) || {};
+        savedRates[currencyKey()] = invertedRate;
+        localStorage.setItem("savedRates", JSON.stringify(savedRates));
       }
 
       updateRateLabels();
       convertCurrency();
 
-      if(invertedRate && isCognitoSignedIn()){
+      if (invertedRate && isCognitoSignedIn()) {
         saveSettings(invertedRate);
       }
     }
