@@ -116,23 +116,6 @@
       color: #555;
     }
 
-    .paypal-direct-btn {
-      display: block;
-      background-color: #ffc439;
-      color: #111;
-      text-decoration: none;
-      font-weight: bold;
-      padding: 12px;
-      border-radius: 5px;
-      margin-top: 10px;
-      border: 1px solid #e0ac2b;
-      transition: background-color 0.2s ease;
-    }
-
-    .paypal-direct-btn:hover {
-      background-color: #f2ba31;
-    }
-
     #paypal-button-container {
       margin-top: 12px;
     }
@@ -161,8 +144,8 @@
       <input type="text" id="customName" placeholder="e.g. Indian Rupee" required>
 
       <div class="section-title">2. Payment via PayPal</div>
-      
-      <!-- Option A: Rendered PayPal SDK Buttons -->
+
+      <!-- Container for custom JS Smart Buttons -->
       <div id="paypal-button-container"></div>
 
       <button type="button" class="back-btn" onclick="window.location.href='index.html'">Cancel & Return</button>
